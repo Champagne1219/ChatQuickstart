@@ -1,0 +1,6 @@
+${PODS_ROOT}/Target Support Files/Pods-ChatQuickstart/Pods-ChatQuickstart-frameworks.sh
+${BUILT_PRODUCTS_DIR}/FMDB/FMDB.framework
+${BUILT_PRODUCTS_DIR}/KakaJSON/KakaJSON.framework
+${BUILT_PRODUCTS_DIR}/SwiftFFDBHotFix/SwiftFFDBHotFix.framework
+${PODS_XCFRAMEWORKS_BUILD_DIR}/AgoraInfra_iOS/aosl.framework/aosl
+${PODS_XCFRAMEWORKS_BUILD_DIR}/HyphenateChat/HyphenateChat.framework/HyphenateChat

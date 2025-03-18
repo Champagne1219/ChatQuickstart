@@ -1,0 +1,40 @@
+PODS:
+  - AgoraInfra_iOS (1.2.13)
+  - EaseChatUIKit (4.11.1):
+    - HyphenateChat (>= 4.10.1)
+  - FMDB (2.7.11):
+    - FMDB/standard (= 2.7.11)
+  - FMDB/standard (2.7.11)
+  - HyphenateChat (4.12.0):
+    - AgoraInfra_iOS (= 1.2.13)
+  - KakaJSON (1.1.2)
+  - SwiftFFDBHotFix (2.3.1):
+    - FMDB (~> 2.7.2)
+
+DEPENDENCIES:
+  - EaseChatUIKit (= 4.11.1)
+  - FMDB (= 2.7.11)
+  - HyphenateChat (= 4.12.0)
+  - KakaJSON (~> 1.1.2)
+  - SwiftFFDBHotFix
+
+SPEC REPOS:
+  trunk:
+    - AgoraInfra_iOS
+    - EaseChatUIKit
+    - FMDB
+    - HyphenateChat
+    - KakaJSON
+    - SwiftFFDBHotFix
+
+SPEC CHECKSUMS:
+  AgoraInfra_iOS: 65e11a2183ab7836258768868d06058c22701b13
+  EaseChatUIKit: d623cc50f100ce22877a92660cb3febc713206a7
+  FMDB: 57486c1117fd8e0e6b947b2f54c3f42bf8e57a4e
+  HyphenateChat: e3869321ba4e1b7e61f320a037935f3f4751e74a
+  KakaJSON: cc5ff50a8c1cfbb09413db8496cb709a209e6137
+  SwiftFFDBHotFix: 7e582af57129df9b613da26a1d72d08a5fdf279e
+
+PODFILE CHECKSUM: 15865de8912ab5fd8220b42cbb6774e8367464f8
+
+COCOAPODS: 1.16.2

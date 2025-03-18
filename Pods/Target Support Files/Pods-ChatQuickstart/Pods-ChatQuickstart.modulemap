@@ -1,0 +1,6 @@
+framework module Pods_ChatQuickstart {
+  umbrella header "Pods-ChatQuickstart-umbrella.h"
+
+  export *
+  module * { export * }
+}

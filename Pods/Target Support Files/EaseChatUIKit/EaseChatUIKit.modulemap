@@ -1,0 +1,6 @@
+framework module EaseChatUIKit {
+  umbrella header "EaseChatUIKit-umbrella.h"
+
+  export *
+  module * { export * }
+}

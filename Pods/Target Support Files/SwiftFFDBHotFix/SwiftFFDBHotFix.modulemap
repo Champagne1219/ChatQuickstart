@@ -1,0 +1,6 @@
+framework module SwiftFFDBHotFix {
+  umbrella header "SwiftFFDBHotFix-umbrella.h"
+
+  export *
+  module * { export * }
+}
