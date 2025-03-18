@@ -12,10 +12,10 @@ let MusicPlayerLogger = Logger(
     category: "MusicPlayer.debugging"
 )
 
-public enum playState {
-    case playing
-    case pause
-    case stop
+public enum playState: String{
+    case playing = "播放中"
+    case pause = "暂停"
+    case stop = "结束"
     
     /// 通过有限状态机模式进行状态切换回调
     func stateChange(_ state: playState, _ handler: [()-> Void]) {
@@ -29,9 +29,15 @@ public enum playState {
     }
 }
 
+extension playState: CustomStringConvertible {
+    public var description: String {
+        self.rawValue
+    }
+}
+
 class MusicPlayer: AVPlayer{
     public var url: URL?
-    private var player: AVPlayer?
+    public var player: AVPlayer?
     /// 遵循协议的任何音乐播放视图控制器都可以（目前只设计了MusicPlayViewController）
     public var musicPalyerVC: Nextable?
     /// 单例模式，避免多个播放器
@@ -55,11 +61,10 @@ class MusicPlayer: AVPlayer{
             self.player = AVPlayer(playerItem: playItem)
             /// 注册音乐播放结束监听通知
             NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying), name: AVPlayerItem.didPlayToEndTimeNotification, object: playItem)
-            playAction()
+            self.playAction()
         } else {
             self.playAnotherAction(url: url)
         }
-        
     }
     
     func playAction() {

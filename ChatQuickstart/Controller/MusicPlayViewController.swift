@@ -26,6 +26,7 @@ class MusicPlayViewController: UIViewController, Nextable{
     private var stateQueue = DispatchQueue(label: "com.ChatQuickstart.state.queue")
     /// 播放状态切换时触发的回调闭包数组
     private var stateHandler: [()->Void] = []
+    private var timeObserverToken: Any?
     
     private var musicPlayActivity: Activity<MusicPlayAttributes>? = nil
     
@@ -43,13 +44,17 @@ class MusicPlayViewController: UIViewController, Nextable{
         fatalError("init(coder:) has not been implemented")
     }
     
-    /// 视图消失按钮(需要扩大响应区域)
-    public lazy var dismissButton: UIButton = {
-        let button = UIButton(frame: CGRect(x: 20, y: 60, width: 30, height: 20))
+    deinit {
+        self.musicPlayer.player?.removeTimeObserver(timeObserverToken)
+    }
+    
+    /// 视图消失按钮(扩大响应热区)
+    public lazy var dismissButton: CustomUIButton = {
+        let button = CustomUIButton(frame: CGRect(x: 20, y: 60, width: 30, height: 20))
         button.setImage(UIImage(systemName: "chevron.down"), for: .normal)
         button.contentHorizontalAlignment = .fill
         button.contentVerticalAlignment = .fill
-        button.addTarget(self, action: #selector(dismissAction), for: .touchUpInside)
+        button.addTarget(self, action: #selector(dismissButtonAction), for: .touchUpInside)
         return button
     }()
     
@@ -80,7 +85,9 @@ class MusicPlayViewController: UIViewController, Nextable{
     public lazy var playerSlider: UISlider = {
         let slider = UISlider(frame: CGRect(x: 30, y: singer.frame.maxY + 40, width: 370, height: 5))
         slider.minimumValue = 0
+        slider.maximumValue = 1
         slider.setThumbImage(UIImage(systemName: "circlebadge.fill"), for: .normal)
+        slider.addTarget(self, action: #selector(seekMusic), for: .valueChanged)
         return slider
     }()
     
@@ -138,12 +145,33 @@ class MusicPlayViewController: UIViewController, Nextable{
         self.musicInfoSet()
         self.themeSet()
         self.view.addSubViews([dismissButton, songName, singer, playerSlider, currentTime, totalTime, previousButton, nextButton, playButton, musicPoster])
+        self.view.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(dismissGestureAction)))
     }
     
     override func viewDidAppear(_ animated: Bool) {
         if let url = self.currentMusic.audioFileUrl {
             self.musicPlayer.setupPlayer(url: url, musicPlayerVC: self)
+            self.addTimeObserver()
             self.stateSetter(state: .playing)
+        }
+    }
+    
+    func addTimeObserver() {
+        MusicPlayViewLogger.info("添加时间观察器")
+        let interval = CMTime(seconds: 0.1, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+        timeObserverToken = self.musicPlayer.player?.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
+            self?.updateProgress()
+        }
+    }
+    
+    @objc func updateProgress() {
+        MusicPlayViewLogger.info("播放进度正在更新，音乐播放总时长为\(self.currentMusic.duration)")
+        if let currentTime = self.musicPlayer.player?.currentTime().seconds {
+            let totalTime = Double(self.currentMusic.duration)
+            DispatchQueue.main.async {
+                self.playerSlider.value = Float(currentTime / totalTime)
+                self.currentTime.text = String(format: "%02d:%02d", Int(currentTime) / 60, Int(currentTime) % 60)
+            }
         }
     }
     
@@ -151,7 +179,6 @@ class MusicPlayViewController: UIViewController, Nextable{
         self.musicPoster.image = UIImage(named: currentMusic.posterStr)
         self.songName.text = currentMusic.songName
         self.singer.text = currentMusic.singer
-        self.playerSlider.maximumValue = Float(currentMusic.duration)
         self.currentTime.text = "00:00"
         self.totalTime.text = currentMusic.durationFormatted
         self.playButton.isSelected = true
@@ -174,6 +201,7 @@ class MusicPlayViewController: UIViewController, Nextable{
         self.state.stateChange(state, stateHandler)
         self.stateQueue.async{
             self.state = state
+            print("当前音乐播放状态: \(self.state)")
         }
     }
     
@@ -190,8 +218,32 @@ class MusicPlayViewController: UIViewController, Nextable{
         }
     }
     
-    @objc func dismissAction() {
+    @objc func seekMusic(sender: UISlider) {
+        let targetTime = CMTime(seconds: Double(sender.value * Float(self.currentMusic.duration)), preferredTimescale: 1000)
+        self.musicPlayer.player?.seek(to: targetTime) { _ in
+            MusicPlayViewLogger.info("音乐播放进度跳转成功")
+        }
+    }
+    
+    @objc func dismissButtonAction(sender: UIButton) {
         self.dismiss(animated: true)
+    }
+    
+    @objc func dismissGestureAction(gesture: UIPanGestureRecognizer) {
+        let minimumDistance: CGFloat = 50.0
+        switch gesture.state {
+        case .began, .changed:
+            break
+        case .ended:
+            let translation = gesture.translation(in: self.view)
+            let isVerticalSwipe = abs(translation.y) > abs(translation.x)
+            let isDownward = translation.y > 0
+            if isVerticalSwipe && isDownward && abs(translation.y) > minimumDistance {
+                dismiss(animated: true)
+            }
+        default:
+            break
+        }
     }
     
     @objc func switchAction(sender: UIButton) {
@@ -251,14 +303,14 @@ class MusicPlayViewController: UIViewController, Nextable{
         self.musicPoster.layer.add(rotationAnimation, forKey: self.rotationAnimationKey)
     }
     
-    func pauseRotaion() {
+    @objc func pauseRotaion() {
         MusicPlayViewLogger.info("海报暂停旋转")
         let pauseTime = self.musicPoster.layer.convertTime(CACurrentMediaTime(), from: nil)
         self.musicPoster.layer.speed = 0.0
         self.musicPoster.layer.timeOffset = pauseTime
     }
     
-    func resumeRotaion() {
+    @objc func resumeRotaion() {
         MusicPlayViewLogger.info("海报恢复旋转")
         let pausedTime = musicPoster.layer.timeOffset
         self.musicPoster.layer.speed = 1.0
