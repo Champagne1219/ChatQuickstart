@@ -165,7 +165,6 @@ class MusicPlayViewController: UIViewController, Nextable{
     }
     
     @objc func updateProgress() {
-        MusicPlayViewLogger.info("播放进度正在更新，音乐播放总时长为\(self.currentMusic.duration)")
         if let currentTime = self.musicPlayer.player?.currentTime().seconds {
             let totalTime = Double(self.currentMusic.duration)
             DispatchQueue.main.async {
@@ -205,7 +204,8 @@ class MusicPlayViewController: UIViewController, Nextable{
         }
     }
     
-    func nextAction() {
+    /// 将更新监听对象的任务作为完成回调，避免异步操作导致数据不一致，从而丢失新的监听注册
+    func nextAction(completion: @escaping () -> Void) {
         self.currentIndex = (self.currentIndex + self.musicModelList.count + 1) % (self.self.musicModelList.count)
         self.currentMusic = self.musicModelList[self.currentIndex]
         DispatchQueue.main.async {
@@ -215,6 +215,7 @@ class MusicPlayViewController: UIViewController, Nextable{
                 self.musicPlayer.playAnotherAction(url: url)
             }
             self.stateSetter(state: .playing)
+            completion()
         }
     }
     

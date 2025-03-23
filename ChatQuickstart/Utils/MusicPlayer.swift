@@ -80,17 +80,21 @@ class MusicPlayer: AVPlayer{
             self.pauseAction()
         }
         let playerItem = AVPlayerItem(url: url)
+        self.playeItem = playerItem
         self.player?.replaceCurrentItem(with: playerItem)
         playAction()
     }
     
     @objc func playerDidFinishPlaying(notification: Notification) {
         MusicPlayerLogger.info("当前音乐播放结束,即将播放下一首歌")
-        /// 更新监听关联对象
         NotificationCenter.default.removeObserver(self)
-        self.musicPalyerVC?.nextAction()
-        if let playItem = playeItem {
-            NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying), name: AVPlayerItem.didPlayToEndTimeNotification, object: playItem)
+        /// 进行自动切歌时更新监听关联对象（作为切歌操作的完成回调）
+        self.musicPalyerVC?.nextAction {
+            print("下一首歌监听开始")
+            if let playItem = self.playeItem {
+                NotificationCenter.default.addObserver(self, selector: #selector(self.playerDidFinishPlaying), name: AVPlayerItem.didPlayToEndTimeNotification, object: playItem)
+                print("下一个歌监听注册完成")
+            }
         }
     }
     
