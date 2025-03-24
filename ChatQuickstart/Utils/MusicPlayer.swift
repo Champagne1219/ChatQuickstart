@@ -42,7 +42,7 @@ class MusicPlayer: AVPlayer{
     public var musicPalyerVC: Nextable?
     /// 单例模式，避免多个播放器
     public static var sharedInstance = MusicPlayer()
-    private var playeItem: AVPlayerItem?
+    private var playerItem: AVPlayerItem?
     
     private init(url: URL? = nil, player: AVPlayer? = nil) {
         self.url = url
@@ -80,7 +80,7 @@ class MusicPlayer: AVPlayer{
             self.pauseAction()
         }
         let playerItem = AVPlayerItem(url: url)
-        self.playeItem = playerItem
+        self.playerItem = playerItem
         self.player?.replaceCurrentItem(with: playerItem)
         playAction()
     }
@@ -91,8 +91,8 @@ class MusicPlayer: AVPlayer{
         /// 进行自动切歌时更新监听关联对象（作为切歌操作的完成回调）
         self.musicPalyerVC?.nextAction {
             print("下一首歌监听开始")
-            if let playItem = self.playeItem {
-                NotificationCenter.default.addObserver(self, selector: #selector(self.playerDidFinishPlaying), name: AVPlayerItem.didPlayToEndTimeNotification, object: playItem)
+            if let playerItem = self.playerItem {
+                NotificationCenter.default.addObserver(self, selector: #selector(self.playerDidFinishPlaying), name: AVPlayerItem.didPlayToEndTimeNotification, object: playerItem)
                 print("下一个歌监听注册完成")
             }
         }

@@ -47,7 +47,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         musicVC.tabBarItem = UITabBarItem(title: "音乐", image: UIImage(systemName: "music.note.list"), tag: 0)
         landVC.tabBarItem = UITabBarItem(title: "登陆", image: UIImage(systemName: "person.circle"), tag: 1)
         
-        tabBarController.viewControllers = [musicVC, landVC]
+        tabBarController.viewControllers = [musicVC, loginVC]
         
         // 创建 UINavigationController，并将根视图控制器设置为tabBarController
         let navigationController = UINavigationController(rootViewController: tabBarController)
